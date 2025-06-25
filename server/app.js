@@ -30,15 +30,17 @@ app.use(express.json())
 const userRoutes = require('./routes/userRoutes')
 app.use('/api/users', userRoutes)
 
-// ✅ Set up a test route at the root URL (http://localhost:3000/)
+
+
+// ✅ Set up a test route at the root URL (http://localhost:5001/)
 // Just sends back plain text so we know the API is working
 app.get('/', (req, res) => {
   res.send('API is running...')
 })
 
-// 🌟 Set the port to whatever is in your .env file, or default to 3000
-const PORT = process.env.PORT || 3000
+// 🌟 Set the port to whatever is in your .env file, or default to 5001
+const PORT = process.env.PORT || 5001
 
 // 🚀 Start the server and log that it's running
-// This makes your API live at http://localhost:3000
+// This makes your API live at http://localhost:5001
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`))
