@@ -1,0 +1,27 @@
+Server Folder:
+    For Express backend
+    npm init -y
+    npm install express dotenv openai cors
+        express: to build the api dotenv + to load API keys from .env 
+        openai: to use the openAi api
+        cors: so react can talk to express on a different port
+    .env file: api key goes here
+    npm install --save-dev nodemon
+    put "dev": "nodemon app.js" under scripts
+    To start server: npm run dev
+
+    For mongoDB: 
+    1.Set up a free cluster in mongo atlas
+    npm install mongoose
+
+    2. npm install bcryptjs jsonwebtoken
+        bcryptjs: securely hash passwords
+        jsonwebtoken: creates JWTs for session auth
+
+    3. We used postman to test if our backend login and register credentials worked
+
+
+
+
+Client Folder:
+    For react frontend
