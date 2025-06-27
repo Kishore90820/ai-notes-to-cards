@@ -1,6 +1,8 @@
 const mongoose = require("mongoose")
 
+//Create a note schema that  takes in longofrm notes that will then turn into a flashcard (short, concise and structured)
 const noteSchema = new mongoose.Schema({
+  //Every. note must belong to a user
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
@@ -10,7 +12,7 @@ const noteSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  // optional title field
+  // title field for the flashcard; not required
   title: {
     type: String
   }

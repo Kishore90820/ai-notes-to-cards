@@ -30,7 +30,8 @@ app.use(express.json())
 const userRoutes = require('./routes/userRoutes')
 app.use('/api/users', userRoutes)
 
-
+const flashcardRoutes = require('./routes/flashcardRoutes');
+app.use('/api/flashcards', flashcardRoutes);
 
 // ✅ Set up a test route at the root URL (http://localhost:5001/)
 // Just sends back plain text so we know the API is working
