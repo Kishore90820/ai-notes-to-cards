@@ -30,6 +30,9 @@ app.use(express.json())
 const userRoutes = require('./routes/userRoutes')
 app.use('/api/users', userRoutes)
 
+const noteRoutes = require('./routes/noteRoutes')
+app.use('/api/notes', noteRoutes)
+
 const flashcardRoutes = require('./routes/flashcardRoutes');
 app.use('/api/flashcards', flashcardRoutes);
 

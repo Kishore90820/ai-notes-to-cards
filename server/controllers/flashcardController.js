@@ -44,12 +44,15 @@ const getFlashcards = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 // 📌 GET a single flashcard by ID
 const getFlashcardById = async (req, res) => {
   try {
+    //Finds the flashcard ID from the url like /api/flashcard/123 and belongs currently to the curretnly authenticated user
     const flashcard = await Flashcard.findOne({ _id: req.params.id, user: req.user.id });
-    if (!flashcard) return res.status(404).json({ message: "Flashcard not found" });
+    if (!flashcard) return res.status(404).json({ message: "Flashcard not found" }); //404 error if not found
     res.status(200).json(flashcard);
+
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
@@ -57,12 +60,12 @@ const getFlashcardById = async (req, res) => {
 
 // ✏️ UPDATE a flashcard
 const updateFlashcard = async (req, res) => {
-  const { question, answer } = req.body;
+  const { question, answer } = req.body; //pulls question and answer from the request body
 
   try {
     const flashcard = await Flashcard.findOneAndUpdate(
-      { _id: req.params.id, user: req.user.id },
-      { question, answer },
+      { _id: req.params.id, user: req.user.id }, //Filter criteria
+      { question, answer }, //replace old question and answer with the new data from req.body
       { new: true } // return the updated document
     );
 
@@ -77,6 +80,7 @@ const updateFlashcard = async (req, res) => {
 // ❌ DELETE a flashcard
 const deleteFlashcard = async (req, res) => {
   try {
+    //Finds and deletes the card with the given id and belongs to the user
     const deleted = await Flashcard.findOneAndDelete({
       _id: req.params.id,
       user: req.user.id,
