@@ -25,3 +25,7 @@ Server Folder:
 
 Client Folder:
     For react frontend
+    1.Typed npx create-react-app client -- which creates a new client folder with all react setup inside of init
+    2.cd client
+    3. npm install axios react-router-dom: adds axios for making HTTP requests(lets the client talk to backend API)and react-router-dom for handling routes (login, register, etc)
+        -- install whenever we need to fecth or send data (axios) or routing between pages (react-router-dom)
