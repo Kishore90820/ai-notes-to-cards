@@ -36,6 +36,10 @@ app.use('/api/notes', noteRoutes)
 const flashcardRoutes = require('./routes/flashcardRoutes');
 app.use('/api/flashcards', flashcardRoutes);
 
+const flashcardGeneratorRoutes = require('./routes/flashcardGeneratorRoutes');
+app.use('/api/flashcard-generator', flashcardGeneratorRoutes);
+
+
 // ✅ Set up a test route at the root URL (http://localhost:5001/)
 // Just sends back plain text so we know the API is working
 app.get('/', (req, res) => {
