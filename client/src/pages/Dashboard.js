@@ -1,98 +1,112 @@
-import React, { useEffect, useState } from 'react';
-import axiosInstance from '../api/axiosInstance'; // Axios instance with token pre-attached
+import React, { useState, useEffect } from 'react';
+import axiosInstance from '../api/axiosInstance';
 
 function Dashboard() {
-  // Flashcard data from server
-  const [flashcards, setFlashcards] = useState([]);
+  const [notes, setNotes] = useState('');
+  const [generatedFlashcards, setGeneratedFlashcards] = useState([]);
+  const [savedFlashcards, setSavedFlashcards] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
-  // New flashcard form fields
-  const [form, setForm] = useState({ question: '', answer: '' });
-
-  // Feedback messages
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-
-  // 🔁 Fetch flashcards when component mounts
+  // 🔁 Fetch user's saved flashcards on load
   useEffect(() => {
-    fetchFlashcards();
+    fetchSavedFlashcards();
   }, []);
 
-  // 📥 Load flashcards from backend
-  const fetchFlashcards = async () => {
+  const fetchSavedFlashcards = async () => {
     try {
-      const res = await axiosInstance.get('/flashcards'); // GET /api/flashcards
-      setFlashcards(res.data); // Set the state with the response
+      const res = await axiosInstance.get('/flashcards');
+      setSavedFlashcards(res.data);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to fetch flashcards');
+      console.error('Error fetching saved flashcards:', err);
     }
   };
 
-  // 🔄 Handle user input in form
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value }); // Dynamic update
+  // 🧠 Generate flashcards from notes
+  const handleGenerate = async () => {
+    setLoading(true);
+    setMessage('');
+    try {
+      const res = await axiosInstance.post('/flashcard-generator/from-notes', { notes });
+      setGeneratedFlashcards(res.data);
+      setMessage('✅ Flashcards generated!');
+    } catch (err) {
+      setMessage('❌ Failed to generate flashcards.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // 📝 Handle form submission to create new flashcard
-  const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent page reload
-    setError('');
-    setSuccess('');
-
+  // 💾 Save generated flashcards to database
+  const handleSave = async () => {
+    if (generatedFlashcards.length === 0) return;
+    setLoading(true);
+    setMessage('');
     try {
-      const res = await axiosInstance.post('/flashcards', form); // POST /api/flashcards
-      setSuccess('Flashcard created!');
-
-      // Clear form
-      setForm({ question: '', answer: '' });
-
-      // Add new card to the top of the list
-      setFlashcards([res.data, ...flashcards]);
+      await axiosInstance.post('/flashcards/bulk', { flashcards: generatedFlashcards });
+      setMessage('✅ Flashcards saved to your account!');
+      setGeneratedFlashcards([]);
+      fetchSavedFlashcards();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create flashcard');
+      setMessage('❌ Failed to save flashcards.');
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
-      <h2>Your Flashcards</h2>
+    <div style={{ padding: '20px' }}>
+      <h2>AI Flashcard Generator</h2>
 
-      {/* ✅ Form to create flashcard */}
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="question"
-          placeholder="Question"
-          value={form.question}
-          onChange={handleChange}
-          required
-        /><br />
-        <input
-          type="text"
-          name="answer"
-          placeholder="Answer"
-          value={form.answer}
-          onChange={handleChange}
-          required
-        /><br />
-        <button type="submit">Create Flashcard</button>
-      </form>
+      {/* ✏️ Notes Input */}
+      <textarea
+        rows="8"
+        cols="60"
+        placeholder="Paste your notes here..."
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+        style={{ width: '100%', marginBottom: '10px' }}
+      />
 
-      {/* 🔔 Show success/error feedback */}
-      {success && <p style={{ color: 'green' }}>{success}</p>}
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+        <button onClick={handleGenerate} disabled={loading}>🧠 Generate Flashcards</button>
+        <button onClick={handleSave} disabled={loading || generatedFlashcards.length === 0}>💾 Save to My Flashcards</button>
+      </div>
 
-      {/* 🧠 Flashcard List */}
-      {flashcards.length === 0 ? (
-        <p>No flashcards yet.</p>
-      ) : (
-        <ul>
-          {flashcards.map((card) => (
-            <li key={card._id}>
-              <strong>Q:</strong> {card.question} <br />
-              <strong>A:</strong> {card.answer}
-            </li>
-          ))}
-        </ul>
+      {/* 🔔 Feedback */}
+      {message && <p><strong>{message}</strong></p>}
+      {loading && <p>Loading...</p>}
+
+      {/* 📋 Generated Flashcards */}
+      {generatedFlashcards.length > 0 && (
+        <div>
+          <h3>Generated Flashcards</h3>
+          <ul>
+            {generatedFlashcards.map((card, index) => (
+              <li key={index} style={{ border: '1px solid #ccc', padding: '10px', marginBottom: '10px' }}>
+                <strong>Q:</strong> {card.question} <br />
+                <strong>A:</strong> {card.answer}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* 💾 Saved Flashcards */}
+      {savedFlashcards.length > 0 && (
+        <div>
+          <h3>Your Saved Flashcards</h3>
+          <ul>
+            {savedFlashcards.map((card) => (
+              <li key={card._id} style={{ border: '1px solid #eee', padding: '8px', marginBottom: '6px' }}>
+                <strong>Q:</strong> {card.question} <br />
+                <strong>A:</strong> {card.answer}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );
